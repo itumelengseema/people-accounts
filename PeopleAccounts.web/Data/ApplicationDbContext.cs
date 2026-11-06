@@ -20,6 +20,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<Transaction> Transactions { get; set; }
 
+    public virtual DbSet<User> Users { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -114,6 +116,21 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.AccountCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Transaction_Account");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Code);
+
+            entity.HasIndex(e => e.Username, "UQ_Users_Username").IsUnique();
+
+            entity.Property(e => e.Code).HasColumnName("code");
+            entity.Property(e => e.PasswordHash)
+                .HasMaxLength(512)
+                .HasColumnName("password_hash");
+            entity.Property(e => e.Username)
+                .HasMaxLength(100)
+                .HasColumnName("username");
         });
 
         OnModelCreatingPartial(modelBuilder);

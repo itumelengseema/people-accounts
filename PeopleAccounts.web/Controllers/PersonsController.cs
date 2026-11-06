@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PeopleAccounts.web.Models;
 using PeopleAccounts.web.Services;
 using PeopleAccounts.web.ViewModels;
 
 namespace PeopleAccounts.web.Controllers;
 
+[Authorize]
 public class PersonsController : Controller
 {
     private readonly IPersonService _personService;
