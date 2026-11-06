@@ -14,12 +14,21 @@ public class PersonService : IPersonService
         _db = db;
     }
 
-    public async Task<PagedResult<Person>> GetPagedAsync(int pageNumber, int pageSize)
+    public async Task<PagedResult<Person>> GetPagedAsync(int pageNumber, int pageSize, string? searchTerm = null)
     {
         pageNumber = Math.Max(1, pageNumber);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
         IQueryable<Person> query = _db.Persons.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            string search = searchTerm.Trim();
+
+            query = query.Where(person =>
+                person.IdNumber.Contains(search) || (person.Surname) != null && person.Surname.Contains(search) ||
+                person.Accounts.Any(account => account.AccountNumber.Contains(search)));
+        }
 
         int totalCount = await query.CountAsync();
 

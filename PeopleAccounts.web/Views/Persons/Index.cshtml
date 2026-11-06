@@ -4,9 +4,42 @@
 
 @{
     ViewData["Title"] = "Persons";
+    string? searchTerm = ViewData["SearchTerm"] as string;
 }
 
 <h1>Persons</h1>
+
+<form asp-controller="Persons"
+      asp-action="Index"
+      method="get"
+      class="mb-4">
+
+    <label for="searchTerm" class="form-label">
+        Search by ID number, surname or account number
+    </label>
+
+    <div class="input-group">
+        <input type="search"
+               id="searchTerm"
+               name="searchTerm"
+               value="@searchTerm"
+               class="form-control"
+               placeholder="Enter a search term" />
+
+        <button type="submit" class="btn btn-primary">
+            Search
+        </button>
+
+        <a asp-controller="Persons"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Clear
+        </a>
+    </div>
+
+    <input type="hidden" name="pageNumber" value="1" />
+    <input type="hidden" name="pageSize" value="@Model.PageSize" />
+</form>
 
 @if (Model.TotalCount == 0)
 {
@@ -14,7 +47,7 @@
 }
 else
 {
-    <p>Total people: @Model.TotalCount</p>
+    <p>Matching  people: @Model.TotalCount</p>
 
     <div class="table-responsive">
         <table class="table table-striped">
@@ -45,7 +78,9 @@ else
                asp-controller="Persons"
                asp-action="Index"
                asp-route-pageNumber="@(Model.PageNumber - 1)"
-               asp-route-pageSize="@Model.PageSize">
+               asp-route-pageSize="@Model.PageSize"
+               asp-route-searchTerm="@searchTerm"
+               >
                 Previous
             </a>
         }
@@ -60,7 +95,10 @@ else
                asp-controller="Persons"
                asp-action="Index"
                asp-route-pageNumber="@(Model.PageNumber + 1)"
-               asp-route-pageSize="@Model.PageSize">
+               asp-route-pageSize="@Model.PageSize"
+               asp-route-searchTerm="@searchTerm"
+               >
+                
                 Next
             </a>
         }

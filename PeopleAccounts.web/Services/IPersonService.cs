@@ -5,5 +5,5 @@ namespace PeopleAccounts.web.Services;
 
 public interface IPersonService
 {
-    Task<PagedResult<Person>> GetPagedAsync(int pageNumber, int pageSize);
+    Task<PagedResult<Person>> GetPagedAsync(int pageNumber, int pageSize, string? searchTerm = null);
 }

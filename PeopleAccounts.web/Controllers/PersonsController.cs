@@ -15,9 +15,13 @@ public class PersonsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 10,string? searchTerm = null)
     {
-        PagedResult<Person> result = await _personService.GetPagedAsync(pageNumber, pageSize);
+        string? search = searchTerm?.Trim();
+        
+        PagedResult<Person> result = await _personService.GetPagedAsync(pageNumber, pageSize,search);
+
+        ViewData["SearchTerm"] = search;
 
         return View(result);
     }
