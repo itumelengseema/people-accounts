@@ -60,4 +60,61 @@ public class PersonsController : Controller
         return RedirectToAction(nameof(Index));
     }
     
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        EditPersonViewModel? model =
+            await _personService.GetForEditAsync(id);
+
+        if (model == null)
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(
+        int id,
+        EditPersonViewModel model)
+    {
+        if (id != model.Code)
+        {
+            return BadRequest();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        UpdatePersonResult result =
+            await _personService.UpdateAsync(model);
+
+        switch (result)
+        {
+            case UpdatePersonResult.Success:
+                TempData["SuccessMessage"] =
+                    "Person updated successfully.";
+
+                return RedirectToAction(nameof(Index));
+
+            case UpdatePersonResult.NotFound:
+                return NotFound();
+
+            case UpdatePersonResult.DuplicateIdNumber:
+                ModelState.AddModelError(
+                    nameof(EditPersonViewModel.IdNumber),
+                    "A person with this ID number already exists.");
+
+                return View(model);
+
+            default:
+                throw new InvalidOperationException(
+                    "Unexpected person update result.");
+        }
+    }
+    
 }

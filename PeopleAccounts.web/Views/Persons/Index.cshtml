@@ -69,6 +69,7 @@ else
                 <th scope="col">Name</th>
                 <th scope="col">Surname</th>
                 <th scope="col">ID number</th>
+                <th scope="col">Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -78,7 +79,16 @@ else
                     <td>@person.Name</td>
                     <td>@person.Surname</td>
                     <td>@person.IdNumber</td>
+                    <td>
+                        <a asp-controller="Persons"
+                           asp-action="Edit"
+                           asp-route-id="@person.Code"
+                           class="btn btn-sm btn-outline-primary">
+                            Edit
+                        </a>
+                    </td>
                 </tr>
+                
             }
             </tbody>
         </table>
