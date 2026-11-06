@@ -1,0 +1,143 @@
+﻿@using PeopleAccounts.web.ViewModels
+@model PagedResult<Person>
+
+@{
+    ViewData["Title"] = "Persons";
+    string? searchTerm = ViewData["SearchTerm"] as string;
+}
+
+<h1>Persons</h1>
+
+<p>
+    <a asp-controller="Persons"
+       asp-action="Create"
+       class="btn btn-primary">
+        Create Person
+    </a>
+</p>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success" role="status">
+        @successMessage
+    </div>
+}
+<form asp-controller="Persons"
+      asp-action="Index"
+      method="get"
+      class="mb-4">
+
+    <label for="searchTerm" class="form-label">
+        Search by ID number, surname or account number
+    </label>
+
+    <div class="input-group">
+        <input type="search"
+               id="searchTerm"
+               name="searchTerm"
+               value="@searchTerm"
+               class="form-control"
+               placeholder="Enter a search term"/>
+
+        <button type="submit" class="btn btn-primary">
+            Search
+        </button>
+
+        <a asp-controller="Persons"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Clear
+        </a>
+    </div>
+
+    <input type="hidden" name="pageNumber" value="1"/>
+    <input type="hidden" name="pageSize" value="@Model.PageSize"/>
+</form>
+
+@if (Model.TotalCount == 0)
+{
+    <p>No Results Found </p>
+}
+else
+{
+    <p>Matching people: @Model.TotalCount</p>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Surname</th>
+                <th scope="col">ID number</th>
+                <th scope="col">Actions</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (Person person in Model.Items)
+            {
+                <tr>
+                    <td>@person.Name</td>
+                    <td>@person.Surname</td>
+                    <td>@person.IdNumber</td>
+                    <td>
+                        <a asp-controller="Persons"
+                           asp-action="Edit"
+                           asp-route-id="@person.Code"
+                           class="btn btn-sm btn-outline-primary">
+                            Edit
+                        </a>
+                        <a asp-controller="Persons"
+                           asp-action="Delete"
+                           asp-route-id="@person.Code"
+                           class="btn btn-sm btn-outline-danger">
+                            Delete
+                        </a>
+
+                        <a asp-controller="Persons"
+                           asp-action="Details"
+                           asp-route-id="@person.Code"
+                           class="btn btn-sm btn-outline-secondary">
+                            Details
+                        </a>
+                    </td>
+
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <nav aria-label="Persons pagination">
+        @if (Model.HasPreviousPage)
+        {
+            <a class="btn btn-outline-primary"
+               asp-controller="Persons"
+               asp-action="Index"
+               asp-route-pageNumber="@(Model.PageNumber - 1)"
+               asp-route-pageSize="@Model.PageSize"
+               asp-route-searchTerm="@searchTerm"
+            >
+                Previous
+            </a>
+        }
+
+        <span class="mx-3">
+            Page @Model.PageNumber of @Model.TotalPages
+        </span>
+
+        @if (Model.HasNextPage)
+        {
+            <a class="btn btn-outline-primary"
+               asp-controller="Persons"
+               asp-action="Index"
+               asp-route-pageNumber="@(Model.PageNumber + 1)"
+               asp-route-pageSize="@Model.PageSize"
+               asp-route-searchTerm="@searchTerm"
+            >
+
+                Next
+            </a>
+        }
+    </nav>
+}

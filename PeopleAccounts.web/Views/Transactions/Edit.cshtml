@@ -1,0 +1,85 @@
+﻿@model PeopleAccounts.web.ViewModels.EditTransactionViewModel
+
+@{
+    ViewData["Title"] = "Edit Transaction";
+}
+
+<h1>Edit Transaction</h1>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success" role="alert">
+        @successMessage
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-controller="Transactions"
+              asp-action="Edit"
+              asp-route-id="@Model.Code"
+              method="post">
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger"></div>
+
+            <input asp-for="Code" type="hidden" />
+
+            <div class="mb-3">
+                <label asp-for="TransactionDate"
+                       class="form-label"></label>
+
+                <input asp-for="TransactionDate"
+                       type="date"
+                       max="@DateTime.Today.ToString("yyyy-MM-dd")"
+                       class="form-control" />
+
+                <span asp-validation-for="TransactionDate"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Amount" class="form-label"></label>
+
+                <input asp-for="Amount"
+                       type="number"
+                       step="0.01"
+                       class="form-control" />
+
+                <span asp-validation-for="Amount"
+                      class="text-danger"></span>
+
+                <div class="form-text">
+                    Changing this amount adjusts the account balance
+                    by the difference.
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+
+                <textarea asp-for="Description"
+                          class="form-control"
+                          rows="3"
+                          maxlength="100"></textarea>
+
+                <span asp-validation-for="Description"
+                      class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Save Changes
+            </button>
+
+            <a asp-controller="Persons"
+               asp-action="Index"
+               class="btn btn-secondary">
+                Back to Persons
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

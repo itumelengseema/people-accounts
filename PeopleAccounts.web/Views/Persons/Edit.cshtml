@@ -1,0 +1,59 @@
+﻿@model PeopleAccounts.web.ViewModels.EditPersonViewModel
+
+@{
+    ViewData["Title"] = "Edit Person";
+}
+
+<h1>Edit Person</h1>
+
+<form asp-controller="Persons"
+      asp-action="Edit"
+      asp-route-id="@Model.Code"
+      method="post">
+
+    <input type="hidden" asp-for="Code" />
+
+    <div asp-validation-summary="All"
+         class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name"
+               class="form-control"
+               maxlength="50" />
+        <span asp-validation-for="Name"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Surname" class="form-label"></label>
+        <input asp-for="Surname"
+               class="form-control"
+               maxlength="50" />
+        <span asp-validation-for="Surname"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="IdNumber" class="form-label"></label>
+        <input asp-for="IdNumber"
+               class="form-control"
+               maxlength="50" />
+        <span asp-validation-for="IdNumber"
+              class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Save Changes
+    </button>
+
+    <a asp-controller="Persons"
+       asp-action="Index"
+       class="btn btn-outline-secondary">
+        Cancel
+    </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
