@@ -93,8 +93,13 @@ else
                            class="btn btn-sm btn-outline-danger">
                             Delete
                         </a>
-                        
 
+                        <a asp-controller="Persons"
+                           asp-action="Details"
+                           asp-route-id="@person.Code"
+                           class="btn btn-sm btn-outline-secondary">
+                            Details
+                        </a>
                     </td>
 
                 </tr>

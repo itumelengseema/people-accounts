@@ -172,5 +172,23 @@ public class PersonsController : Controller
                     "Unexpected person deletion result");
         }
     }
-    
+    [HttpGet]
+    public async Task<IActionResult> Details(
+        int id,
+        int pageNumber = 1,
+        int pageSize = 10)
+    {
+        PersonDetailsViewModel? model =
+            await _personService.GetDetailsAsync(
+                id,
+                pageNumber,
+                pageSize);
+
+        if (model == null)
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
 }

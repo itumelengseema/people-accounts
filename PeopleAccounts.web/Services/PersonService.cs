@@ -255,4 +255,68 @@ public class PersonService : IPersonService
 
         return DeletePersonResult.Success;
     }
+    
+    public async Task<PersonDetailsViewModel?> GetDetailsAsync(
+        int code,
+        int pageNumber,
+        int pageSize)
+    {
+        pageNumber = Math.Max(1, pageNumber);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        PersonDetailsViewModel? details = await _db.Persons
+            .AsNoTracking()
+            .Where(person => person.Code == code)
+            .Select(person => new PersonDetailsViewModel
+            {
+                Code = person.Code,
+                Name = person.Name,
+                Surname = person.Surname,
+                IdNumber = person.IdNumber
+            })
+            .SingleOrDefaultAsync();
+
+        if (details == null)
+        {
+            return null;
+        }
+
+        IQueryable<Account> accountsQuery = _db.Accounts
+            .AsNoTracking()
+            .Where(account => account.PersonCode == code);
+
+        int totalCount = await accountsQuery.CountAsync();
+
+        int totalPages =
+            (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        pageNumber = Math.Min(
+            pageNumber,
+            Math.Max(1, totalPages));
+
+        int recordsToSkip = (pageNumber - 1) * pageSize;
+
+        List<AccountListItemViewModel> accounts = await accountsQuery
+            .OrderBy(account => account.Code)
+            .Skip(recordsToSkip)
+            .Take(pageSize)
+            .Select(account => new AccountListItemViewModel
+            {
+                Code = account.Code,
+                AccountNumber = account.AccountNumber,
+                OutstandingBalance = account.OutstandingBalance,
+                StatusName = account.StatusCodeNavigation.Name
+            })
+            .ToListAsync();
+
+        details.Accounts = new PagedResult<AccountListItemViewModel>
+        {
+            Items = accounts,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
+
+        return details;
+    }
 }

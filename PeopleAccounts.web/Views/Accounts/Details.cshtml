@@ -1,0 +1,146 @@
+﻿@model PeopleAccounts.web.ViewModels.AccountDetailsViewModel
+
+@{
+    ViewData["Title"] = "Account Details";
+}
+
+<h1>Account Details</h1>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success" role="alert">
+        @successMessage
+    </div>
+}
+
+<dl class="row">
+    <dt class="col-sm-3">Account number</dt>
+    <dd class="col-sm-9">@Model.AccountNumber</dd>
+
+    <dt class="col-sm-3">Outstanding balance</dt>
+    <dd class="col-sm-9">
+        @Model.OutstandingBalance.ToString("N2")
+    </dd>
+
+    <dt class="col-sm-3">Status</dt>
+    <dd class="col-sm-9">@Model.StatusName</dd>
+</dl>
+
+<div class="mb-4">
+    <a asp-controller="Accounts"
+       asp-action="Edit"
+       asp-route-id="@Model.Code"
+       class="btn btn-primary">
+        Edit Account
+    </a>
+
+    <a asp-controller="Persons"
+       asp-action="Details"
+       asp-route-id="@Model.PersonCode"
+       class="btn btn-secondary">
+        Back
+    </a>
+</div>
+
+<h2>Transactions</h2>
+@if (Model.StatusCode == 1)
+{
+    <a asp-controller="Transactions"
+       asp-action="Create"
+       asp-route-accountCode="@Model.Code"
+       class="btn btn-primary mb-3">
+        Add Transaction
+    </a>
+}
+else
+{
+    <div class="alert alert-info" role="alert">
+        This account is closed. New transactions cannot be posted.
+    </div>
+}
+
+@if (Model.Transactions.TotalCount == 0)
+{
+    <p>No transactions found </p>
+}
+else
+{
+    <p>Total transactions: @Model.Transactions.TotalCount</p>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Transaction date</th>
+                    <th>Capture date</th>
+                    <th>Description</th>
+                    <th class="text-end">Amount</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var transaction in Model.Transactions.Items)
+                {
+                    <tr>
+                        <td>
+                            @transaction.TransactionDate.ToString("dd MMM yyyy")
+                        </td>
+                        <td>
+                            @transaction.CaptureDate.ToString("dd MMM yyyy HH:mm")
+                        </td>
+                        <td>@transaction.Description</td>
+                        <td class="text-end">
+                            @transaction.Amount.ToString("N2")
+                        </td>
+                        <td>
+                            @if (Model.StatusCode == 1)
+                            {
+                                <a asp-controller="Transactions"
+                                   asp-action="Edit"
+                                   asp-route-id="@transaction.Code"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Edit
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Closed account</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <nav aria-label="Transaction pages"
+         class="d-flex align-items-center gap-3">
+
+        @if (Model.Transactions.HasPreviousPage)
+        {
+            <a asp-action="Details"
+               asp-route-id="@Model.Code"
+               asp-route-pageNumber="@(Model.Transactions.PageNumber - 1)"
+               asp-route-pageSize="@Model.Transactions.PageSize"
+               class="btn btn-outline-primary">
+                Previous
+            </a>
+        }
+
+        <span>
+            Page @Model.Transactions.PageNumber
+            of @Model.Transactions.TotalPages
+        </span>
+
+        @if (Model.Transactions.HasNextPage)
+        {
+            <a asp-action="Details"
+               asp-route-id="@Model.Code"
+               asp-route-pageNumber="@(Model.Transactions.PageNumber + 1)"
+               asp-route-pageSize="@Model.Transactions.PageSize"
+               class="btn btn-outline-primary">
+                Next
+            </a>
+        }
+    </nav>
+}

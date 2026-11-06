@@ -11,4 +11,8 @@ public interface IPersonService
     Task<DeletePersonViewModel?> GetForDeleteAsync(int code);
     Task<UpdatePersonResult> UpdateAsync(EditPersonViewModel model);
     Task<DeletePersonResult> DeleteAsync(int code);
+    Task<PersonDetailsViewModel?> GetDetailsAsync(
+        int code,
+        int pageNumber,
+        int pageSize);
 }

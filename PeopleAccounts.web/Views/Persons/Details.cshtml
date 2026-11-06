@@ -1,0 +1,126 @@
+﻿@using PeopleAccounts.web.ViewModels
+@model PersonDetailsViewModel
+
+@{
+    ViewData["Title"] = "Person Details";
+}
+
+<h1>Person Details</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Name</dt>
+    <dd class="col-sm-9">@Model.Name</dd>
+
+    <dt class="col-sm-3">Surname</dt>
+    <dd class="col-sm-9">@Model.Surname</dd>
+
+    <dt class="col-sm-3">ID number</dt>
+    <dd class="col-sm-9">@Model.IdNumber</dd>
+</dl>
+
+<p>
+    <a asp-controller="Persons"
+       asp-action="Edit"
+       asp-route-id="@Model.Code"
+       class="btn btn-outline-primary">
+        Edit Person
+    </a>
+
+    <a asp-controller="Persons"
+       asp-action="Index"
+       class="btn btn-outline-secondary">
+        Back to Persons
+    </a>
+</p>
+
+<h2>Accounts</h2>
+
+@if (Model.Accounts.TotalCount == 0)
+{
+    <p>No Account records found </p>
+}
+else
+{
+    <p>Total accounts: @Model.Accounts.TotalCount</p>
+    <a asp-controller="Accounts"
+       asp-action="Create"
+       asp-route-personCode="@Model.Code"
+       class="btn btn-primary mb-3">
+        Add Account
+    </a>
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="alert alert-success" role="alert">
+            @successMessage
+        </div>
+    }
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Account number</th>
+                    <th scope="col">Outstanding balance</th>
+                    <th scope="col">Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (AccountListItemViewModel account
+                    in Model.Accounts.Items)
+                {
+                    <tr>
+                        <td>@account.AccountNumber</td>
+                        <td>@account.OutstandingBalance.ToString("N2")</td>
+                        <td>@account.StatusName</td>
+                        <td>
+                            <a asp-controller="Accounts"
+                               asp-action="Edit"
+                               asp-route-id="@account.Code"
+                               class="btn btn-sm btn-outline-primary">
+                                Edit
+                            </a>
+                            
+                            <a asp-controller="Accounts"
+                               asp-action="Details"
+                               asp-route-id="@account.Code"
+                               class="btn btn-sm btn-outline-secondary">
+                                Details
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <nav aria-label="Accounts pagination">
+        @if (Model.Accounts.HasPreviousPage)
+        {
+            <a asp-controller="Persons"
+               asp-action="Details"
+               asp-route-id="@Model.Code"
+               asp-route-pageNumber="@(Model.Accounts.PageNumber - 1)"
+               asp-route-pageSize="@Model.Accounts.PageSize"
+               class="btn btn-outline-primary">
+                Previous
+            </a>
+        }
+
+        <span class="mx-3">
+            Page @Model.Accounts.PageNumber
+            of @Model.Accounts.TotalPages
+        </span>
+
+        @if (Model.Accounts.HasNextPage)
+        {
+            <a asp-controller="Persons"
+               asp-action="Details"
+               asp-route-id="@Model.Code"
+               asp-route-pageNumber="@(Model.Accounts.PageNumber + 1)"
+               asp-route-pageSize="@Model.Accounts.PageSize"
+               class="btn btn-outline-primary">
+                Next
+            </a>
+        }
+    </nav>
+}
