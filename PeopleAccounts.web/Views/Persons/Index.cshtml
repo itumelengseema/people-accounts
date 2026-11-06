@@ -1,0 +1,68 @@
+﻿@using PeopleAccounts.web.Models
+@using PeopleAccounts.web.ViewModels
+@model PagedResult<Person>
+
+@{
+    ViewData["Title"] = "Persons";
+}
+
+<h1>Persons</h1>
+
+@if (Model.TotalCount == 0)
+{
+    <p>No Results Found </p>
+}
+else
+{
+    <p>Total people: @Model.TotalCount</p>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Surname</th>
+                <th scope="col">ID number</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (Person person in Model.Items)
+            {
+                <tr>
+                    <td>@person.Name</td>
+                    <td>@person.Surname</td>
+                    <td>@person.IdNumber</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <nav aria-label="Persons pagination">
+        @if (Model.HasPreviousPage)
+        {
+            <a class="btn btn-outline-primary"
+               asp-controller="Persons"
+               asp-action="Index"
+               asp-route-pageNumber="@(Model.PageNumber - 1)"
+               asp-route-pageSize="@Model.PageSize">
+                Previous
+            </a>
+        }
+
+        <span class="mx-3">
+            Page @Model.PageNumber of @Model.TotalPages
+        </span>
+
+        @if (Model.HasNextPage)
+        {
+            <a class="btn btn-outline-primary"
+               asp-controller="Persons"
+               asp-action="Index"
+               asp-route-pageNumber="@(Model.PageNumber + 1)"
+               asp-route-pageSize="@Model.PageSize">
+                Next
+            </a>
+        }
+    </nav>
+}
