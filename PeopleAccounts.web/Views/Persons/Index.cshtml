@@ -1,5 +1,4 @@
-﻿@using PeopleAccounts.web.Models
-@using PeopleAccounts.web.ViewModels
+﻿@using PeopleAccounts.web.ViewModels
 @model PagedResult<Person>
 
 @{
@@ -9,6 +8,20 @@
 
 <h1>Persons</h1>
 
+<p>
+    <a asp-controller="Persons"
+       asp-action="Create"
+       class="btn btn-primary">
+        Create Person
+    </a>
+</p>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success" role="status">
+        @successMessage
+    </div>
+}
 <form asp-controller="Persons"
       asp-action="Index"
       method="get"

@@ -25,4 +25,39 @@ public class PersonsController : Controller
 
         return View(result);
     }
+    
+    
+    [HttpGet]
+    public IActionResult Create()
+    {
+        CreatePersonViewModel model = new CreatePersonViewModel();
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(CreatePersonViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        bool created = await _personService.CreateAsync(model);
+
+        if (!created)
+        {
+            ModelState.AddModelError(
+                nameof(CreatePersonViewModel.IdNumber),
+                "A person with this ID number already exists.");
+
+            return View(model);
+        }
+
+        TempData["SuccessMessage"] = "Person created successfully.";
+
+        return RedirectToAction(nameof(Index));
+    }
+    
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using PeopleAccounts.web.Data;
 using PeopleAccounts.web.Models;
 using PeopleAccounts.web.ViewModels;
@@ -50,5 +52,49 @@ public class PersonService : IPersonService
             PageSize = pageSize,
             TotalCount = totalCount
         };
+    }
+
+    public async Task<bool> CreateAsync(CreatePersonViewModel model)
+    {
+        Validator.ValidateObject(model,new ValidationContext(model),validateAllProperties:true);
+
+        string idNumber = model.IdNumber.Trim();
+
+        bool isExist = await _db.Persons.AnyAsync(person => person.IdNumber == idNumber);
+
+        if (isExist)
+        {
+            return false;
+        }
+
+        Person person = new Person
+        {
+            Name = model.Name?.Trim(),
+            Surname = model.Surname?.Trim(),
+            IdNumber = idNumber
+        };
+        _db.Persons.Add(person);
+
+        try
+        {
+            await _db.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception e)
+        when(e.InnerException is SqlException sqlException && (sqlException.Number == 2601 || sqlException.Number == 2627))
+        {
+            _db.Entry(person).State = EntityState.Detached;
+            
+    
+            bool duplicateId = await _db.Persons
+                .AnyAsync(existing => existing.IdNumber == idNumber);
+
+            if (duplicateId)
+            {
+                return false;
+            }
+
+            throw;
+        }
     }
 }

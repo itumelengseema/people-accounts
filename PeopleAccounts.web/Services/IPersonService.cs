@@ -6,4 +6,5 @@ namespace PeopleAccounts.web.Services;
 public interface IPersonService
 {
     Task<PagedResult<Person>> GetPagedAsync(int pageNumber, int pageSize, string? searchTerm = null);
+    Task<bool> CreateAsync(CreatePersonViewModel model);
 }
