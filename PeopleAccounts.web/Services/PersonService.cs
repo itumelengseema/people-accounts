@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using PeopleAccounts.web.Data;
 using PeopleAccounts.web.Models;
 using PeopleAccounts.web.ViewModels;
@@ -113,6 +115,26 @@ public class PersonService : IPersonService
             .SingleOrDefaultAsync();
     }
 
+    public async Task<DeletePersonViewModel?> GetForDeleteAsync(int code)
+    {
+        const int closedStatusCode = 2;
+
+        return await _db.Persons
+            .AsNoTracking()
+            .Where(person => person.Code == code)
+            .Select(person => new DeletePersonViewModel
+            {
+                Code = person.Code,
+                Name = person.Name,
+                Surname = person.Surname,
+                IdNumber = person.IdNumber,
+                AccountCount = person.Accounts.Count(),
+                HasNonClosedAccounts = person.Accounts.Any(
+                    account => account.StatusCode != closedStatusCode)
+            })
+            .SingleOrDefaultAsync();
+    }
+
     public async Task<UpdatePersonResult> UpdateAsync(
         EditPersonViewModel model)
     {
@@ -184,5 +206,53 @@ public class PersonService : IPersonService
 
             throw;
         }
+    }
+    
+    public async Task<DeletePersonResult> DeleteAsync(int code)
+    {
+        const int closedStatusCode = 2;
+
+        await using IDbContextTransaction transaction =
+            await _db.Database.BeginTransactionAsync(
+                IsolationLevel.Serializable);
+
+        bool personExists = await _db.Persons
+            .AnyAsync(person => person.Code == code);
+
+        if (!personExists)
+        {
+            return DeletePersonResult.NotFound;
+        }
+
+        bool hasNonClosedAccounts = await _db.Accounts
+            .AnyAsync(account =>
+                account.PersonCode == code &&
+                account.StatusCode != closedStatusCode);
+
+        if (hasNonClosedAccounts)
+        {
+            return DeletePersonResult.HasNonClosedAccounts;
+        }
+
+        IQueryable<int> accountCodes = _db.Accounts
+            .Where(account => account.PersonCode == code)
+            .Select(account => account.Code);
+
+        
+        await _db.Transactions
+            .Where(item => accountCodes.Contains(item.AccountCode))
+            .ExecuteDeleteAsync();
+
+        await _db.Accounts
+            .Where(account => account.PersonCode == code)
+            .ExecuteDeleteAsync();
+
+        await _db.Persons
+            .Where(person => person.Code == code)
+            .ExecuteDeleteAsync();
+
+        await transaction.CommitAsync();
+
+        return DeletePersonResult.Success;
     }
 }

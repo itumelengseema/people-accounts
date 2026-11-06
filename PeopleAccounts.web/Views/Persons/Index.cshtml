@@ -37,7 +37,7 @@
                name="searchTerm"
                value="@searchTerm"
                class="form-control"
-               placeholder="Enter a search term" />
+               placeholder="Enter a search term"/>
 
         <button type="submit" class="btn btn-primary">
             Search
@@ -50,8 +50,8 @@
         </a>
     </div>
 
-    <input type="hidden" name="pageNumber" value="1" />
-    <input type="hidden" name="pageSize" value="@Model.PageSize" />
+    <input type="hidden" name="pageNumber" value="1"/>
+    <input type="hidden" name="pageSize" value="@Model.PageSize"/>
 </form>
 
 @if (Model.TotalCount == 0)
@@ -60,7 +60,7 @@
 }
 else
 {
-    <p>Matching  people: @Model.TotalCount</p>
+    <p>Matching people: @Model.TotalCount</p>
 
     <div class="table-responsive">
         <table class="table table-striped">
@@ -70,6 +70,7 @@ else
                 <th scope="col">Surname</th>
                 <th scope="col">ID number</th>
                 <th scope="col">Actions</th>
+
             </tr>
             </thead>
             <tbody>
@@ -86,9 +87,17 @@ else
                            class="btn btn-sm btn-outline-primary">
                             Edit
                         </a>
+                        <a asp-controller="Persons"
+                           asp-action="Delete"
+                           asp-route-id="@person.Code"
+                           class="btn btn-sm btn-outline-danger">
+                            Delete
+                        </a>
+                        
+
                     </td>
+
                 </tr>
-                
             }
             </tbody>
         </table>
@@ -103,7 +112,7 @@ else
                asp-route-pageNumber="@(Model.PageNumber - 1)"
                asp-route-pageSize="@Model.PageSize"
                asp-route-searchTerm="@searchTerm"
-               >
+            >
                 Previous
             </a>
         }
@@ -120,8 +129,8 @@ else
                asp-route-pageNumber="@(Model.PageNumber + 1)"
                asp-route-pageSize="@Model.PageSize"
                asp-route-searchTerm="@searchTerm"
-               >
-                
+            >
+
                 Next
             </a>
         }

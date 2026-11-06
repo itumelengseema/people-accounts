@@ -117,4 +117,60 @@ public class PersonsController : Controller
         }
     }
     
+    [HttpGet]
+    public async Task<IActionResult> Delete(int id)
+    {
+        DeletePersonViewModel? model =
+            await _personService.GetForDeleteAsync(id);
+
+        if (model == null)
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        DeletePersonResult result =
+            await _personService.DeleteAsync(id);
+
+        switch (result)
+        {
+            case DeletePersonResult.Success:
+                TempData["SuccessMessage"] =
+                    "Person and associated records deleted successfully.";
+
+                return RedirectToAction(nameof(Index));
+
+            case DeletePersonResult.NotFound:
+                return NotFound();
+
+            case DeletePersonResult.HasNonClosedAccounts:
+            {
+                DeletePersonViewModel? model =
+                    await _personService.GetForDeleteAsync(id);
+
+                if (model == null)
+                {
+                    return NotFound();
+                }
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "This person cannot be deleted because an account is not closed");
+
+                return View("Delete", model);
+            }
+
+            default:
+                throw new InvalidOperationException(
+                    "Unexpected person deletion result");
+        }
+    }
+    
 }

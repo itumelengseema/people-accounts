@@ -1,0 +1,61 @@
+﻿@model PeopleAccounts.web.ViewModels.DeletePersonViewModel
+
+@{
+    ViewData["Title"] = "Delete Person";
+}
+
+<h1>Delete Person</h1>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<dl class="row">
+    <dt class="col-sm-3">Name</dt>
+    <dd class="col-sm-9">@Model.Name</dd>
+
+    <dt class="col-sm-3">Surname</dt>
+    <dd class="col-sm-9">@Model.Surname</dd>
+
+    <dt class="col-sm-3">ID number</dt>
+    <dd class="col-sm-9">@Model.IdNumber</dd>
+
+    <dt class="col-sm-3">Number of accounts</dt>
+    <dd class="col-sm-9">@Model.AccountCount</dd>
+</dl>
+
+@if (Model.CanDelete)
+{
+    <div class="alert alert-warning" role="alert">
+        This will permanently delete this person, their closed
+        accounts and all transactions belonging to those accounts.
+        This cannot be undone.
+    </div>
+
+    <form asp-controller="Persons"
+          asp-action="Delete"
+          asp-route-id="@Model.Code"
+          method="post">
+
+        <button type="submit" class="btn btn-danger">
+            Confirm Delete
+        </button>
+
+        <a asp-controller="Persons"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Cancel
+        </a>
+    </form>
+}
+else
+{
+    <div class="alert alert-info" role="status">
+        This person cannot be deleted because at least one
+        account is not closed.
+    </div>
+
+    <a asp-controller="Persons"
+       asp-action="Index"
+       class="btn btn-outline-secondary">
+        Back to Persons
+    </a>
+}

@@ -16,6 +16,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<Person> Persons { get; set; }
 
+    public virtual DbSet<Status> Statuses { get; set; }
+
     public virtual DbSet<Transaction> Transactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -35,11 +37,19 @@ public partial class ApplicationDbContext : DbContext
                 .HasColumnType("money")
                 .HasColumnName("outstanding_balance");
             entity.Property(e => e.PersonCode).HasColumnName("person_code");
+            entity.Property(e => e.StatusCode)
+                .HasDefaultValue(1)
+                .HasColumnName("status_code");
 
             entity.HasOne(d => d.PersonCodeNavigation).WithMany(p => p.Accounts)
                 .HasForeignKey(d => d.PersonCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Account_Person");
+
+            entity.HasOne(d => d.StatusCodeNavigation).WithMany(p => p.Accounts)
+                .HasForeignKey(d => d.StatusCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Accounts_Status");
         });
 
         modelBuilder.Entity<Person>(entity =>
@@ -61,6 +71,23 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("surname");
+        });
+
+        modelBuilder.Entity<Status>(entity =>
+        {
+            entity.HasKey(e => e.Code);
+
+            entity.ToTable("Status");
+
+            entity.HasIndex(e => e.Name, "UQ_Status_Name").IsUnique();
+
+            entity.Property(e => e.Code)
+                .ValueGeneratedNever()
+                .HasColumnName("code");
+            entity.Property(e => e.Name)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("name");
         });
 
         modelBuilder.Entity<Transaction>(entity =>
